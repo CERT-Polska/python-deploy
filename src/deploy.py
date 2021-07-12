@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
 import argparse
-from datetime import datetime
 import json
 import logging
 import os
 import subprocess
-from typing import List, Union, Optional, Dict, Callable
+from datetime import datetime
+from typing import Callable, Dict, List, Optional, Union
 
 import yaml
 
@@ -35,9 +35,7 @@ def check_call(
     try:
         params = flatten(params)
         log.debug(f"> {' '.join(params)}")
-        result = subprocess.check_output(params,
-                                         input=input,
-                                         stderr=subprocess.STDOUT)
+        result = subprocess.check_output(params, input=input, stderr=subprocess.STDOUT)
         log.debug(f"$ {result.decode()}")
         return result
     except subprocess.CalledProcessError as exc:
@@ -67,9 +65,7 @@ def get_current_git_hash() -> str:
     return check_call(["git", "rev-parse", "HEAD"]).strip().decode("utf-8")
 
 
-def tag_docker_image(
-    existing_image: str, new_tag: str, push: bool = False
-) -> None:
+def tag_docker_image(existing_image: str, new_tag: str, push: bool = False) -> None:
     check_call(["docker", "tag", existing_image, new_tag])
     if push:
         push_image(new_tag)
@@ -99,19 +95,11 @@ def pull_image(tag: str) -> None:
 
 
 def run_image_command(tag: str, params: List[str]) -> None:
-    check_call(
-        [
-            "docker",
-            "run",
-            tag,
-            params
-        ])
+    check_call(["docker", "run", tag, params])
 
 
 def get_k8s_config_path(
-    service_name: str,
-    environment: str,
-    service_config: Dict
+    service_name: str, environment: str, service_config: Dict
 ) -> str:
     if service_config[environment].get("configuration"):
         return service_config[environment]["configuration"]
@@ -136,8 +124,7 @@ def get_k8s_deployment_config(k8s_config: List[Dict]):
             return config
     else:
         raise DeployError(
-            "Deployment configuration not found in "
-            "Kubernetes configuration file."
+            "Deployment configuration not found in " "Kubernetes configuration file."
         )
 
 
@@ -155,8 +142,9 @@ def get_k8s_config_key(k8s_depl_config: Dict, key_path: str):
 
 
 def get_k8s_container_spec(k8s_depl_config: Dict, container_name: str):
-    containers_spec = get_k8s_config_key(k8s_depl_config,
-                                         "spec.template.spec.containers")
+    containers_spec = get_k8s_config_key(
+        k8s_depl_config, "spec.template.spec.containers"
+    )
     for container_spec in containers_spec:
         if container_spec.get("name") == container_name:
             return container_spec
@@ -168,12 +156,9 @@ def get_k8s_container_spec(k8s_depl_config: Dict, container_name: str):
 
 
 def get_validated_k8s_config(
-    service_name: str,
-    environment: str,
-    service_config: Dict
+    service_name: str, environment: str, service_config: Dict
 ) -> List[Dict]:
-    k8s_config_path = get_k8s_config_path(
-        service_name, environment, service_config)
+    k8s_config_path = get_k8s_config_path(service_name, environment, service_config)
     k8s_config = get_k8s_config(k8s_config_path)
     k8s_depl_config = get_k8s_deployment_config(k8s_config)
     deploy_config = service_config[environment]
@@ -201,8 +186,7 @@ def get_validated_k8s_config(
             f"found: {k8s_config_deployment})"
         )
 
-    container_spec = get_k8s_container_spec(
-        k8s_depl_config, deploy_config["container"])
+    container_spec = get_k8s_container_spec(k8s_depl_config, deploy_config["container"])
 
     k8s_config_image = container_spec["image"].split(":")[0]
     deploy_image = service_config["docker"]["image"]
@@ -217,47 +201,29 @@ def get_validated_k8s_config(
 
 
 def set_k8s_config_image(
-    k8s_config: List[Dict],
-    service_config: Dict,
-    environment: str, tag: str
+    k8s_config: List[Dict], service_config: Dict, environment: str, tag: str
 ):
     deploy_config = service_config[environment]
     k8s_depl_config = get_k8s_deployment_config(k8s_config)
-    container_spec = get_k8s_container_spec(
-        k8s_depl_config, deploy_config["container"])
+    container_spec = get_k8s_container_spec(k8s_depl_config, deploy_config["container"])
     container_spec["image"] = tag
 
 
-def diff_k8s_configuration(
-    k8s_config: List[Dict],
-    deploy_config: Dict
-) -> bytes:
+def diff_k8s_configuration(k8s_config: List[Dict], deploy_config: Dict) -> bytes:
     def error_filter(exc: subprocess.CalledProcessError):
         return exc.returncode in [0, 1]
 
     return check_call(
-        [
-            "kubectl",
-            "diff",
-            "--namespace",
-            deploy_config["namespace"],
-            "-f", "-"
-        ],
+        ["kubectl", "diff", "--namespace", deploy_config["namespace"], "-f", "-"],
         input=yaml.dump_all(k8s_config, encoding="utf-8"),
-        error_filter=error_filter
+        error_filter=error_filter,
     )
 
 
 def apply_k8s_configuration(k8s_config: List[Dict], deploy_config: Dict):
     return check_call(
-        [
-            "kubectl",
-            "apply",
-            "--namespace",
-            deploy_config["namespace"],
-            "-f", "-"
-        ],
-        input=yaml.dump_all(k8s_config, encoding="utf-8")
+        ["kubectl", "apply", "--namespace", deploy_config["namespace"], "-f", "-"],
+        input=yaml.dump_all(k8s_config, encoding="utf-8"),
     )
 
 
@@ -307,8 +273,7 @@ class Deploy(object):
         self.args = args
         if not os.path.isfile("deploy/deploy.json"):
             raise DeployError(
-                "Configuration file deploy/deploy.json not found. "
-                "Check your CWD."
+                "Configuration file deploy/deploy.json not found. " "Check your CWD."
             )
         with open("deploy/deploy.json", "r") as configfile:
             self.config = json.loads(configfile.read())
@@ -341,8 +306,10 @@ class Deploy(object):
             except subprocess.CalledProcessError:
                 ci_commit_sha = os.getenv("CI_COMMIT_SHA")
                 if ci_commit_sha:
-                    log.warning("Can't determine commit hash: "
-                                "getting version from $CI_COMMIT_SHA.")
+                    log.warning(
+                        "Can't determine commit hash: "
+                        "getting version from $CI_COMMIT_SHA."
+                    )
                     return ci_commit_sha
                 else:
                     raise DeployError(
@@ -394,22 +361,20 @@ class Deploy(object):
     def _deploy(self, service, environment):
         if environment not in self.config[service]:
             raise DeployError(
-                f"There is no {environment} key defined "
-                f"for {service} service"
+                f"There is no {environment} key defined " f"for {service} service"
             )
         config = self.config[service]["docker"]
         version_tag = self._version_tag(config)
 
         k8s_config = get_validated_k8s_config(
-            service, environment, self.config[service])
+            service, environment, self.config[service]
+        )
 
-        set_k8s_config_image(k8s_config, self.config[service],
-                             environment, version_tag)
+        set_k8s_config_image(k8s_config, self.config[service], environment, version_tag)
 
         if self.args.validate:
             diff = diff_k8s_configuration(
-                k8s_config,
-                self.config[service][environment]
+                k8s_config, self.config[service][environment]
             ).decode()
             if diff:
                 log.info(f"Found difference for {version_tag}")
@@ -425,14 +390,11 @@ class Deploy(object):
         tag = f"{config['image']}:latest"
         log.info(f"Tagging image {version_tag} as {tag}")
         tag_docker_image(version_tag, tag, push=True)
-        log.info(
-            f"Setting image {version_tag} for {environment} environment"
-        )
+        log.info(f"Setting image {version_tag} for {environment} environment")
         if self.args.set_image_only:
             set_current_image(self.config[service][environment], version_tag)
         else:
-            apply_k8s_configuration(k8s_config,
-                                    self.config[service][environment])
+            apply_k8s_configuration(k8s_config, self.config[service][environment])
 
     def production(self):
         if not self.args.deploy_only and not self.args.validate:
@@ -492,7 +454,7 @@ def main():
         "--version",
         help="Alternative version tag ('commit', 'date' or custom)",
         default="commit",
-        type=str
+        type=str,
     )
 
     build_subparser = argparse.ArgumentParser(add_help=False)
@@ -507,17 +469,20 @@ def main():
 
     deploy_subparser = argparse.ArgumentParser(add_help=False)
     deploy_subparser.add_argument(
-        "--deploy-only", action="store_true",
-        help="Don't build and push, just apply k8s configuration"
+        "--deploy-only",
+        action="store_true",
+        help="Don't build and push, just apply k8s configuration",
     )
     deploy_subparser.add_argument(
-        "--set-image-only", action="store_true",
+        "--set-image-only",
+        action="store_true",
         help="Only set image in existing deployment,"
-             " without applying k8s configuration"
+        " without applying k8s configuration",
     )
     deploy_subparser.add_argument(
-        "--validate", action="store_true",
-        help="Only validate k8s configuration and show 'kubectl diff' output"
+        "--validate",
+        action="store_true",
+        help="Only validate k8s configuration and show 'kubectl diff' output",
     )
 
     commands = parser.add_subparsers(help="Deploy commands", dest="command")
@@ -545,21 +510,15 @@ def main():
         parents=[build_subparser, service_subparser, deploy_subparser],
         help="Build, push and deploy images to the PRODUCTION environment",
     )
-    commands.add_parser(
-        "image",
-        parents=[service_subparser],
-        help="Show image names"
-    )
+    commands.add_parser("image", parents=[service_subparser], help="Show image names")
     run_command = commands.add_parser(
         "run",
         parents=[service_subparser],
-        help="Run interactive command for service images"
+        help="Run interactive command for service images",
     )
     run_command.add_argument("cmd", nargs="*")
     commands.add_parser(
-        "list",
-        parents=[service_subparser],
-        help="List available services"
+        "list", parents=[service_subparser], help="List available services"
     )
     args = parser.parse_args()
     logging.basicConfig(

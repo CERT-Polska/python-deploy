@@ -8,7 +8,7 @@ with open("src/requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="python-deploy",
-    version="3.0.1",
+    version="3.0.2",
     author="msm, psrok1",
     author_email="info@cert.pl",
     description="Build, push and deploy k8s services with single "
@@ -18,7 +18,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     install_requires=requirements,
     package_dir={"deploy": "src"},
-    url="https://gitlab.com/cert.pl/deploy",
+    url="https://github.com/CERT-Polska/python-deploy",
     packages=["deploy"],
     include_package_data=True,
     scripts=["util/kubernetes_use_token"],
