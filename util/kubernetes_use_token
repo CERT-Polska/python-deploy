@@ -1,0 +1,5 @@
+#!/bin/bash
+kubectl config set-cluster cluster --server="$1"
+kubectl config set-credentials ci --token "$2"
+kubectl config set-context default --cluster=cluster --user=ci
+kubectl config use-context default

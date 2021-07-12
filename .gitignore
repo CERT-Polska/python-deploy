@@ -1,0 +1,9 @@
+.vscode/
+__pycache__/
+venv/
+.mypy_cache/
+build/
+deploy.egg-info/
+.idea/
+python_deploy.egg-info/
+dist/

@@ -1,0 +1,9 @@
+{
+    "deploy": {
+        "docker": {
+            "image": "certpl/deploy",
+            "dockerfile": "deploy/docker/Dockerfile",
+            "dir": "."
+        }
+    }
+}
