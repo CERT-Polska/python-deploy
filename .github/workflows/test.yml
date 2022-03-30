@@ -10,11 +10,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: CERT-Polska/lint-python-action@v1
         with:
-          python-version: 3.6
-      - run: pip install isort==5.9.2 black==21.6b0 flake8==3.8.4
-      - run: isort --check src/
-      - run: black --check src/
-      - run: flake8 src/
+          source: src/
+          use-mypy: false
+          install-requirements: false
