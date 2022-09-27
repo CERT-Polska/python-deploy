@@ -10,8 +10,6 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: CERT-Polska/lint-python-action@v1
+      - uses: CERT-Polska/lint-python-action@v2
         with:
           source: src/
-          use-mypy: false
-          install-requirements: false
