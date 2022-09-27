@@ -35,6 +35,7 @@ jobs:
       - name: Build and push the image
         uses: docker/build-push-action@v2.2.1
         with:
+          file: "./deploy/docker/Dockerfile"
           tags: |
             certpl/deploy:${{ github.sha }}
             certpl/deploy:${{ github.event.release.tag_name }}
