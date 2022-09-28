@@ -29,7 +29,8 @@ Then you can use `deploy build` to build your Docker image. Your image will be t
 
 ```
 $ deploy build
-[INFO] Building image certpl/fancy-service:a2f3d45a4ccfcee03a8a3941ec7177e394626cf2
+[INFO] Building image for fancy-service
+[INFO] Building certpl/fancy-service:cb85eb9d38c407e462a6681351dfd36331635329
 ```
 
 If you want to provide alternative version tag, use `--version`. You can provide any tag you want, but few of them are special:
@@ -41,8 +42,10 @@ Use `deploy push` if you want to push (and build) image to Docker Registry or Do
 
 ```
 $ deploy push
-[INFO] Building image certpl/fancy-service:a2f3d45a4ccfcee03a8a3941ec7177e394626cf2
-[INFO] Pushing image certpl/fancy-service:a2f3d45a4ccfcee03a8a3941ec7177e394626cf2
+[INFO] Building image for fancy-service
+[INFO] Building certpl/fancy-service:cb85eb9d38c407e462a6681351dfd36331635329
+[INFO] Pushing image for fancy-service
+[INFO] Pushing certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
 ```
 
 ### Make your k8s deployment deploy-enabled
@@ -75,6 +78,9 @@ A complete example of a `deploy.json` file is presented below:
 }
 ```
 
+Starting from v4.0.0 you can provide `cronjob` instead of `deployment`. `init-container` is also supported if it uses
+the same image.
+
 > It's recommended to place your Kubernetes configuration files in the `deploy/k8s` and `deploy/k8s-staging` subdirectories.
 
 This enables you to use `deploy staging` and `deploy production` commands.
@@ -86,11 +92,13 @@ to new version.
 
 ```
 $ deploy production
-[INFO] Building image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
-[INFO] Pushing image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
-[INFO] Tagging image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 as certpl/fancy-service:master
-[INFO] Tagging image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 as certpl/fancy-service:latest
-[INFO] Setting image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 for k8s environment
+[INFO] Building image for fancy-service
+[INFO] Building certpl/fancy-service:cb85eb9d38c407e462a6681351dfd36331635329
+[INFO] Pushing image for fancy-service
+[INFO] Pushing certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
+[INFO] Deploying image to k8s
+[INFO] Tagging certpl/fancy-service:e12840da50a9426b36de7c0be6dc553cde9923e8 as certpl/fancy-service::latest
+[INFO] Pushing certpl/fancy-service:latest
 ```
 
 If you don't want to rebuild your Docker images and need just to pull them from the Docker Registry, you can use
@@ -98,11 +106,12 @@ If you don't want to rebuild your Docker images and need just to pull them from 
 
 ```
 $ docker pull
-[INFO] Pulling image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
+[INFO] Pulling image for fancy-service
+[INFO] Pulling certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7
 $ deploy production --deploy-only
-[INFO] Tagging image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 as certpl/fancy-service:master
-[INFO] Tagging image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 as certpl/fancy-service:latest
-[INFO] Setting image certpl/fancy-service:7f6dd7010dba1ffdaeb32875e0f71c30c9810df7 for k8s environment
+[INFO] Deploying image to k8s
+[INFO] Tagging certpl/fancy-service:e12840da50a9426b36de7c0be6dc553cde9923e8 as certpl/fancy-service::latest
+[INFO] Pushing certpl/fancy-service:latest
 ```
 
 ### Support for multiple services
@@ -127,7 +136,7 @@ Deploy will build, push and deploy them all (unless you explicitly select servic
 You can automate all these steps with CI/CD. Example `.gitlab-ci.yml` file is presented below:
 
 ```yaml
-image: certpl/deploy
+image: certpl/deploy:v4.0.0
 
 services:
   - docker:dind
