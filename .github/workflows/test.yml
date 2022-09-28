@@ -13,3 +13,4 @@ jobs:
       - uses: CERT-Polska/lint-python-action@v2
         with:
           source: src/
+          install-requirements: 'false'

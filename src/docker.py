@@ -1,9 +1,10 @@
 from typing import List
 
-from .utils import check_call, flatten
+from .utils import check_call, flatten, logger
 
 
-def tag_docker_image(existing_image: str, new_tag: str, push: bool = False) -> None:
+def tag_image(existing_image: str, new_tag: str, push: bool = False) -> None:
+    logger.info(f"Tagging {existing_image} as {new_tag}")
     check_call(["docker", "tag", existing_image, new_tag])
     if push:
         push_image(new_tag)
@@ -12,6 +13,7 @@ def tag_docker_image(existing_image: str, new_tag: str, push: bool = False) -> N
 def build_image(
     dockerfile: str, context_dir: str, tags: List[str], no_cache: bool
 ) -> None:
+    logger.info(f"Building {', '.join(tags)}")
     check_call(
         [
             "docker",
@@ -27,10 +29,12 @@ def build_image(
 
 
 def push_image(tag: str) -> None:
+    logger.info(f"Pushing {tag}")
     check_call(["docker", "image", "push", tag])
 
 
 def pull_image(tag: str) -> None:
+    logger.info(f"Pulling {tag}")
     check_call(["docker", "image", "pull", tag])
 
 

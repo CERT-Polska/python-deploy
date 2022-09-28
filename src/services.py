@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 import yaml
 
-from .docker import build_image, pull_image, push_image
+from .docker import build_image, pull_image, push_image, tag_image
 from .k8s import apply_k8s_configuration, diff_k8s_configuration
 from .schema import DeployServiceSpec, DeploySpec, KubernetesEnv, KubernetesSpec
 from .utils import DeployError, get_dict_key
@@ -194,6 +194,11 @@ class DeployService:
     def push_docker(self, tags: List[str]) -> None:
         for tag in self.get_docker_tags(tags):
             push_image(tag)
+
+    def tag_docker(self, existing_tag: str, tags: List[str]) -> None:
+        existing_docker_tag = self.get_docker_tags([existing_tag])[0]
+        for tag in self.get_docker_tags(tags):
+            tag_image(existing_docker_tag, tag, push=True)
 
     def pull_docker(self, tags: List[str]) -> None:
         for tag in self.get_docker_tags(tags):
