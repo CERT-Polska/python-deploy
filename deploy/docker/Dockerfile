@@ -9,4 +9,4 @@ RUN apk update \
 COPY . /app/deploy
 
 RUN cd /app/deploy \
-    && pip install .
+    && pip install . \
