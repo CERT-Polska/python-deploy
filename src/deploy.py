@@ -113,6 +113,7 @@ class Deploy(object):
                 continue
             if not self.args.deploy_only:
                 self.push()
+            logger.info(f"Deploying {service.service_name} to k8s")
             self._deploy(service, "k8s")
 
     def staging(self) -> None:
@@ -122,6 +123,7 @@ class Deploy(object):
                 continue
             if not self.args.deploy_only:
                 self.push()
+            logger.info(f"Deploying {service.service_name} to k8s-staging")
             self._deploy(service, "k8s-staging")
 
     def image(self) -> None:
