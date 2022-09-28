@@ -22,11 +22,11 @@ def load_deploy_json(load_only: Optional[List[str]] = None) -> DeployServiceSet:
         raise DeployError(
             "Configuration file deploy/deploy.json not found. " "Check your CWD."
         )
-    deploy_json = deploy_path.read_bytes()
+    deploy_json = deploy_path.read_text()
     return DeployServiceSet(json.loads(deploy_json), load_only=load_only)
 
 
-def get_version_tag(source: str, check_dirty=True) -> str:
+def get_version_tag(source: str, check_dirty: bool = True) -> str:
     if check_dirty:
         if not has_git_repo():
             raise DeployError(
