@@ -86,10 +86,9 @@ class Deploy(object):
             service.push_docker([self.version_tag] + extra_tags)
 
     def pull(self) -> None:
-        extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Pulling image for {service.service_name}")
-            service.push_docker([self.version_tag] + extra_tags)
+            service.pull_docker([self.version_tag])
 
     def _validate(self, service: DeployService, environment: KubernetesEnv) -> None:
         diff = service.diff_k8s_config(self.version_tag, environment)
