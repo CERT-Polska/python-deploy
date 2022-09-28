@@ -72,24 +72,24 @@ class Deploy(object):
         self.version_tag: str = get_version_tag(
             self.args.version, check_dirty=not self.args.force
         )
-        self.extra_tags: List[str] = self.args.tag or []
 
     def build(self) -> None:
+        extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Building image for {service.service_name}")
-            service.build_docker(
-                [self.version_tag] + self.extra_tags, self.args.no_cache
-            )
+            service.build_docker([self.version_tag] + extra_tags, self.args.no_cache)
 
     def push(self) -> None:
+        extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Pushing image for {service.service_name}")
-            service.push_docker([self.version_tag] + self.extra_tags)
+            service.push_docker([self.version_tag] + extra_tags)
 
     def pull(self) -> None:
+        extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Pulling image for {service.service_name}")
-            service.push_docker([self.version_tag] + self.extra_tags)
+            service.push_docker([self.version_tag] + extra_tags)
 
     def _validate(self, service: DeployService, environment: KubernetesEnv) -> None:
         diff = service.diff_k8s_config(self.version_tag, environment)
@@ -101,9 +101,9 @@ class Deploy(object):
 
     def _deploy(self, service: DeployService, environment: KubernetesEnv) -> None:
         if environment == "k8s":
-            service.push_docker(["master", "latest"])
+            service.tag_docker(self.version_tag, ["master", "latest"])
         else:
-            service.push_docker(["latest"])
+            service.tag_docker(self.version_tag, ["latest"])
         service.apply_k8s_config(self.version_tag, environment)
 
     def production(self) -> None:

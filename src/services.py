@@ -56,7 +56,7 @@ class DeployK8S:
 
         for svc_config in k8s_config:
             svc_kind = svc_config.get("kind")
-            if not svc_kind or svc_kind != kind:
+            if not svc_kind or svc_kind.lower() != kind:
                 continue
             metadata = svc_config.get("metadata", {})
             if metadata.get("name") == name:
