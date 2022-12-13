@@ -80,6 +80,7 @@ class Deploy(object):
             service.build_docker([self.version_tag] + extra_tags, self.args.no_cache)
 
     def push(self) -> None:
+        self.build()
         extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Pushing image for {service.service_name}")
