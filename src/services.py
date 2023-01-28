@@ -181,7 +181,9 @@ class DeployService:
             tag if ":" in tag else f'{self.docker_spec["image"]}:{tag}' for tag in tags
         ]
 
-    def build_docker(self, tags: List[str], no_cache: bool = False) -> None:
+    def build_docker(
+        self, tags: List[str], no_cache: bool = False, extra_args: List[str] = None
+    ) -> None:
         if not self.docker_spec:
             raise DeployError(
                 f"Invalid specification of {self.service_name}. "
@@ -189,7 +191,10 @@ class DeployService:
             )
         dockerfile = self.docker_spec.get("dockerfile", "./Dockerfile")
         context_dir = self.docker_spec.get("dir", ".")
-        build_image(dockerfile, context_dir, self.get_docker_tags(tags), no_cache)
+        extra_args = extra_args or []
+        build_image(
+            dockerfile, context_dir, self.get_docker_tags(tags), no_cache, extra_args
+        )
 
     def push_docker(self, tags: List[str]) -> None:
         for tag in self.get_docker_tags(tags):

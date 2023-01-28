@@ -8,7 +8,7 @@ with open("src/requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="python-deploy",
-    version="4.0.1",
+    version="4.1.0",
     author="msm, psrok1",
     author_email="info@cert.pl",
     description="Build, push and deploy k8s services with single "
