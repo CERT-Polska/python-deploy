@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import pathlib
+import shlex
 import subprocess
 from datetime import datetime
 from typing import List, Optional
@@ -77,7 +78,10 @@ class Deploy(object):
         extra_tags = self.args.tag or []
         for service in self.config.get_services():
             logger.info(f"Building image for {service.service_name}")
-            service.build_docker([self.version_tag] + extra_tags, self.args.no_cache)
+            extra_args = shlex.split(self.args.build_args or "")
+            service.build_docker(
+                [self.version_tag] + extra_tags, self.args.no_cache, extra_args
+            )
 
     def push(self) -> None:
         self.build()
@@ -181,6 +185,9 @@ def main():
         "--no-cache",
         action="store_true",
         help="Pass --no-cache to docker build",
+    )
+    build_subparser.add_argument(
+        "--build-args", help="Extra arguments for 'docker build' command"
     )
 
     deploy_subparser = argparse.ArgumentParser(add_help=False)

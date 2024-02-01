@@ -11,7 +11,11 @@ def tag_image(existing_image: str, new_tag: str, push: bool = False) -> None:
 
 
 def build_image(
-    dockerfile: str, context_dir: str, tags: List[str], no_cache: bool
+    dockerfile: str,
+    context_dir: str,
+    tags: List[str],
+    no_cache: bool,
+    extra_args: List[str],
 ) -> None:
     logger.info(f"Building {', '.join(tags)}")
     check_call(
@@ -24,6 +28,7 @@ def build_image(
             "-f",
             dockerfile,
             ["--no-cache"] if no_cache else [],
+            extra_args,
         ]
     )
 
