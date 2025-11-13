@@ -182,7 +182,10 @@ class DeployService:
         ]
 
     def build_docker(
-        self, tags: List[str], no_cache: bool = False, extra_args: List[str] = None
+        self,
+        tags: List[str],
+        no_cache: bool = False,
+        extra_args: Optional[List[str]] = None,
     ) -> None:
         if not self.docker_spec:
             raise DeployError(
